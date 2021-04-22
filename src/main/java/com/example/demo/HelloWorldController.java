@@ -5,6 +5,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 // @RestController注解就是表示當下的java是一個控制器(Controller)
 
+//需有view
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+
 @RestController
 public class HelloWorldController {
 
