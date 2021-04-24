@@ -2,7 +2,9 @@ package com.example.demo.controller;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.example.demo.entity.Product;
+import com.example.demo.parameter.ProductQueryParameter;
 
 @RestController
 //@RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
@@ -32,9 +35,28 @@ public class ProductController {
         productDB.add(new Product("B0005", "Human Resource Management", 330));
     }
 	
+	@GetMapping
+    public ResponseEntity<List<Product>> getProducts(
+    		@ModelAttribute ProductQueryParameter param) {
+        String nameKeyword = param.getKeyword();
+        String orderBy = param.getOrderBy();
+        String sortRule = param.getSortRule();
+
+        Comparator<Product> comparator = Objects.nonNull(orderBy) && Objects.nonNull(sortRule)
+                ? configureSortComparator(orderBy, sortRule)
+                : (p1, p2) -> 0;
+
+        List<Product> products = productDB.stream()
+                .filter(p -> p.getName().toUpperCase().contains(nameKeyword.toUpperCase()))
+                .sorted(comparator)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok().body(products);
+    }
+	
 	@GetMapping("/")
 	public ResponseEntity<List<Product>> getProducts(
-	        @RequestParam(value = "keyword", defaultValue = "") String keyword) {
+	        @RequestParam(defaultValue = "") String keyword) {
 	    List<Product> products = productDB.stream()
 	            .filter(p -> p.getName().toUpperCase().contains(keyword.toUpperCase()))
 	            .collect(Collectors.toList());
@@ -107,4 +129,21 @@ public class ProductController {
 	        return ResponseEntity.notFound().build();
 	    }
 	}
+	
+	//function
+	private Comparator<Product> configureSortComparator(String orderBy, String sortRule) {
+        Comparator<Product> comparator = (p1, p2) -> 0;
+
+        if (orderBy.equalsIgnoreCase("price")) {
+            comparator = Comparator.comparing(Product::getPrice);
+        } else if (orderBy.equalsIgnoreCase("name")) {
+            comparator = Comparator.comparing(Product::getName);
+        }
+
+        if (sortRule.equalsIgnoreCase("desc")) {
+            comparator = comparator.reversed();
+        }
+
+        return comparator;
+    }
 }
