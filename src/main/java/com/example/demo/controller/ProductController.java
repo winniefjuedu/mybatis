@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
@@ -30,6 +31,16 @@ public class ProductController {
         productDB.add(new Product("B0004", "Finance Management", 450));
         productDB.add(new Product("B0005", "Human Resource Management", 330));
     }
+	
+	@GetMapping("/")
+	public ResponseEntity<List<Product>> getProducts(
+	        @RequestParam(value = "keyword", defaultValue = "") String keyword) {
+	    List<Product> products = productDB.stream()
+	            .filter(p -> p.getName().toUpperCase().contains(keyword.toUpperCase()))
+	            .collect(Collectors.toList());
+
+	    return ResponseEntity.ok().body(products);
+	}
 
 	@GetMapping("/{id}")
     public ResponseEntity<Product> getProduct(@PathVariable("id") String id) {
@@ -84,5 +95,16 @@ public class ProductController {
 	    product.setPrice(request.getPrice());
 
 	    return ResponseEntity.ok().body(product);
+	}
+	
+	@DeleteMapping("/{id}")
+	public ResponseEntity<Void> deleteProduct(@PathVariable("id") String id) {
+	    boolean isRemoved = productDB.removeIf(p -> p.getId().equals(id));
+
+	    if (isRemoved) {
+	        return ResponseEntity.noContent().build();
+	    } else {
+	        return ResponseEntity.notFound().build();
+	    }
 	}
 }
