@@ -67,4 +67,22 @@ public class ProductController {
 
 	    return ResponseEntity.created(location).body(product);
 	}
+	
+	@PutMapping("/{id}") //「覆蓋」掉特定的資源
+	public ResponseEntity<Product> replaceProduct(
+	        @PathVariable("id") String id, @RequestBody Product request) {
+	    Optional<Product> productOp = productDB.stream()
+	            .filter(p -> p.getId().equals(id))
+	            .findFirst();
+
+	    if (!productOp.isPresent()) {
+	        return ResponseEntity.notFound().build();
+	    }
+
+	    Product product = productOp.get();
+	    product.setName(request.getName());
+	    product.setPrice(request.getPrice());
+
+	    return ResponseEntity.ok().body(product);
+	}
 }
