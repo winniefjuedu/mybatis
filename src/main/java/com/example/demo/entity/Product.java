@@ -1,5 +1,6 @@
 package com.example.demo.entity;
 
+// VO
 public class Product {
 	private String id;
     private String name;
