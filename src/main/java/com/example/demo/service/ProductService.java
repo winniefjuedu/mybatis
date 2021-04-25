@@ -8,15 +8,15 @@ import org.springframework.stereotype.Service;
 import com.example.demo.entity.Product;
 import com.example.demo.exception.ConflictException;
 import com.example.demo.exception.NotFoundException;
-import com.example.demo.mapper.ProductMapper;
 import com.example.demo.parameter.ProductQueryParameter;
+import com.example.demo.repository.ProductRepository;
 
-//業務流程
+//業務邏輯層
 @Service
 public class ProductService {
 
     @Autowired
-    private ProductMapper productDAO;
+    private ProductRepository productDAO;
 
     public Product createProduct(Product request) {
         boolean isIdDuplicated = productDAO.find(request.getId()).isPresent();
