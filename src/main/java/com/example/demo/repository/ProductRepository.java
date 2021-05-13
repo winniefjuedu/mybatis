@@ -14,7 +14,7 @@ import org.springframework.stereotype.Repository;
 import com.example.demo.entity.Product;
 import com.example.demo.parameter.ProductQueryParameter;
 
-// DAO 資料持久層
+// DAO (Mapper) 資料持久層
 @Repository
 public class ProductRepository {
 
@@ -22,11 +22,11 @@ public class ProductRepository {
 
     @PostConstruct
     private void initDB() {
-        productDB.add(new Product("B0001", "Android Development (Java)", 380));
-        productDB.add(new Product("B0002", "Android Development (Kotlin)", 420));
-        productDB.add(new Product("B0003", "Data Structure (Java)", 250));
-        productDB.add(new Product("B0004", "Finance Management", 450));
-        productDB.add(new Product("B0005", "Human Resource Management", 330));
+        productDB.add(new Product("B0001", "Android Development (Java)", 380, "LA"));
+        productDB.add(new Product("B0002", "Android Development (Kotlin)", 420, "NY"));
+        productDB.add(new Product("B0003", "Data Structure (Java)", 250, "BOS"));
+        productDB.add(new Product("B0004", "Finance Management", 450, "Taipei"));
+        productDB.add(new Product("B0005", "Human Resource Management", 330, "Tokyo"));
     }
 
     public Product insert(Product product) {
@@ -73,7 +73,7 @@ public class ProductRepository {
     private Comparator<Product> configureSortComparator(String orderBy, String sortRule) {
         Comparator<Product> comparator = (p1, p2) -> 0;
 
-        if (orderBy.equalsIgnoreCase("price")) {
+        if (orderBy.equalsIgnoreCase("age")) {
             comparator = Comparator.comparing(Product::getPrice);
         } else if (orderBy.equalsIgnoreCase("name")) {
             comparator = Comparator.comparing(Product::getName);

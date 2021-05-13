@@ -1,45 +1,28 @@
 package com.example.demo.entity;
 
-// VO
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@Builder
+@NoArgsConstructor
+//VO
 public class Product {
 	private String id;
+	
     private String name;
-    private int price;
-
-    public Product() {
-
-    }
-
-    public Product(String id, String name, int price) {
-        this.id = id;
-        this.name = name;
-        this.price = price;
-    }
-
+    
+    private Integer price;
+    
+    private String city;
     
     // getter/setter
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public int getPrice() {
-		return price;
-	}
-
-	public void setPrice(int price) {
-		this.price = price;
-	}   
+	/** Lombok 可透過簡單的注解省略 Java 的 code，
+      * 像是 setter、getter、logger…等，目的在消除冗長的 code 和提高開發效率
+      * 用@Getter 和@Setter 注解代替
+    **/
     
 }

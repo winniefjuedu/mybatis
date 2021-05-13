@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import java.net.URI;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.example.demo.entity.Product;
+import com.example.demo.entity.Product.ProductBuilder;
 import com.example.demo.parameter.ProductQueryParameter;
 import com.example.demo.service.ProductService;
 
@@ -20,45 +22,59 @@ import com.example.demo.service.ProductService;
 @RequestMapping("/products")
 public class ProductController {
 	
-	@Autowired
-    private ProductService productService;
+	//相當於 @Autowired ProductService productService，可驗證是否有Autowired dead lock
+	private final ProductService productService;
+
+    public ProductController(ProductService productService){
+        this.productService = productService;
+    }
 	
-	@GetMapping
-    public ResponseEntity<List<Product>> getProducts(
-    		@ModelAttribute ProductQueryParameter param) {
-        List<Product> products = productService.getProducts(param);
-        return ResponseEntity.ok(products);
+    @GetMapping("/")
+    public ResponseEntity<List<Product>> getAll(){
+        return ResponseEntity.ok(productService.getAll());
     }
 
 	@GetMapping("/{id}")
-    public ResponseEntity<Product> getProduct(@PathVariable("id") String id) {
-		Product product = productService.getProduct(id);
-        return ResponseEntity.ok(product);
+    public ResponseEntity<Product> getOne(@PathVariable("id") String id) {
+        return ResponseEntity.ok(productService.getProductByPK(id));
     }
 	
-	@PostMapping
-	public ResponseEntity<Product> createProduct(@RequestBody Product request) {
-		Product product = productService.createProduct(request);
-
-	    URI location = ServletUriComponentsBuilder
-	            .fromCurrentRequest()
-	            .path("/{id}")
-	            .buildAndExpand(product.getId())
-	            .toUri();
-
-	    return ResponseEntity.created(location).body(product);
+	@PostMapping("/")
+	public ResponseEntity<Product> insert() {
+		Product product = Product.builder()
+				.id(UUID.randomUUID().toString())
+				.name("test")
+				.price(230)
+				.city("Tokyo")
+				.build();
+		productService.create(product);
+		
+		return ResponseEntity.status(HttpStatus.CREATED).body(product);
 	}
 	
 	@PutMapping("/{id}") //「覆蓋」掉特定的資源
-	public ResponseEntity<Product> replaceProduct(
-	        @PathVariable("id") String id, @RequestBody Product request) {
-	    Product product = productService.replaceProduct(id, request);
-	    return ResponseEntity.ok(product);
+	public ResponseEntity<Product> update(@PathVariable("id") String id){
+	    Product product = Product.builder()
+	    		.id(id)
+	    		.name("test_update")
+	    		.price(300)
+	    		.city("Taipei")
+	    		.build();
+	    productService.update(product);
+	    product = productService.getProductByPK(id);
+	    return ResponseEntity.status(HttpStatus.OK).body(product);
 	}
 	
 	@DeleteMapping("/{id}")
-	public ResponseEntity<Void> deleteProduct(@PathVariable("id") String id) {
-		productService.deleteProduct(id);
-		return ResponseEntity.noContent().build();
+	public ResponseEntity<Product> delete(@PathVariable("id") String id) {
+		Product product = productService.getProductByPK(id);
+		productService.delete(id);
+		return ResponseEntity.status(HttpStatus.OK).body(product);
 	}
+	
+//	@DeleteMapping("/")
+//	public ResponseEntity<String> deleteAll() {
+//		return ResponseEntity.status(HttpStatus.OK).body(productService.deleteAll() > 0 ? "all deleted" : "fail");
+//	}
+	
 }
